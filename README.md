@@ -1,5 +1,5 @@
 # Информация
-Говнобот на discord.js для сервера closedopensource (крутой сервер)
+Говнокод бота на discord.js для сервера closedopensource (крутой сервер!)
 
 # Зависимости
 
@@ -16,6 +16,10 @@
 * Создайте команды на сервер командой `node deploy-commands.js`
 * Запустите бота с помощью команды `npm start`
 
-# Special Thanks
+# Дискорд сервер
+
+* [closedopensource](https://discord.gg/ff6mCHaMpJ)
+
+# Спешл фэнкс
 
 * [zvshka](https://github.com/zvshka)
