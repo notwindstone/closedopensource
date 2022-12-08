@@ -3,6 +3,11 @@
 
 # Особенности
 
+## Приветствие с рандомным текстом и гифкой
+
+![](https://media.discordapp.net/attachments/551038566306938901/1050403453396070410/image.png)
+![](https://media.discordapp.net/attachments/551038566306938901/1050403806623571968/image.png?width=315&height=559)
+
 ## Меню с выбором ролей
 
 ![](https://media.discordapp.net/attachments/551038566306938901/1050396109450788894/image.png)
