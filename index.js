@@ -1,8 +1,13 @@
+// Необходимое для Node.js
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Collection, Events, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+
+// Необходимое для Discord.js
+const { Client, Collection, GatewayIntentBits, EmbedBuilder } = require('discord.js');
+
 const { token } = require('./config.json');
 
+// Инстанция клиента
 const client = new Client({
 	intents: [
 		GatewayIntentBits.Guilds,
@@ -12,7 +17,25 @@ const client = new Client({
 	],
 });
 
+// Загрузка команд
 client.commands = new Collection();
+
+// Ивенты
+const eventsPath = path.join(__dirname, 'events');
+const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
+
+for (const file of eventFiles) {
+	const filePath = path.join(eventsPath, file);
+	const event = require(filePath);
+	if (event.once) {
+		client.once(event.name, (...args) => event.execute(...args));
+	}
+	else {
+		client.on(event.name, (...args) => event.execute(...args));
+	}
+}
+
+// Команды
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
@@ -22,75 +45,7 @@ for (const file of commandFiles) {
 	client.commands.set(command.data.name, command);
 }
 
-client.once(Events.ClientReady, () => {
-	console.log('Успешный запуск!');
-});
-
-client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isChatInputCommand()) return;
-
-	const command = client.commands.get(interaction.commandName);
-
-	if (!command) return;
-
-	try {
-		await command.execute(interaction);
-	}
-	catch (error) {
-		console.error(error);
-		await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
-	}
-});
-
-
-client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isStringSelectMenu()) return;
-	const member = interaction.member;
-
-	// Список наших ролей и собсна ключей для них, можно в будущем вынетси в конфиг какой нибудь
-	const roles = {
-		'first_option': '1009802101905428551',
-		'second_option': '944940016554111056',
-		'third_option': '1002925431793668178',
-		'fourth_option': '776323635099074583',
-		'fifth_option': '996035751731023944',
-		'sixth_option': '1002925902797209691',
-	};
-	// Получаем id шники выбранных ролей
-	const selected = interaction.values.map(value => roles[value]);
-	// Берем роли мембера
-	const memberRoles = member.roles.cache;
-	// Берем значения из объекта
-	const rolesIds = Object.values(roles);
-	const memberHasThatRole = rolesIds.filter(roleId => memberRoles.has(roleId));
-
-	// Берем id ролей, которые имеет пользователь из списка, но не имеет в selected
-	const removed = memberHasThatRole.filter(role => !selected.includes(role));
-	// Берем id ролей, которые имеет в selected, но не имеет на себе
-	const added = selected.filter(role => !memberHasThatRole.includes(role));
-
-	const rolesChange = new EmbedBuilder()
-	//	.setColor(3092790)
-		.setColor(16241871)
-		.setTitle('Изменение ролей')
-		.setDescription('Успешное обновление Ваших ролей.')
-		.setFooter(
-			{
-				text: 'closedopensource',
-				iconURL: 'https://cdn.discordapp.com/icons/725786415438364692/a_8904844391da8277010a5fcdfb33c19a.gif',
-			},
-		);
-
-	console.log(removed, added);
-	
-	member.roles.remove(removed).catch(console.log).then((newMember) => newMember.roles.add(added));
-
-	return interaction.reply({ embeds: [rolesChange], ephemeral: true });
-
-});
-
 // Копипасты
-
 const textArray = [
 	'В биквайте условном сидят люди которые заинтересованы в том чтобы быть топ 1 на рынке и чтобы ихние блоки покупали а также они заинтересованы в том чтобы не потерять свою репутацию потому железо от условного ксас они ставить не будут ибо пару таких блоков угробят им репутацию в сфере блоков питания',
 	'Интел был выебан ещё с выходом 3000 серии.\nТолько, при том, продолжил толкать пятилетнее говно, пусть и в другой упаковке.\nНу хоть цены снизили, спасибо. И потоки завезли. Все это благодаря АМД.\n\nНовый проц - новый сокет, хуле.',
@@ -114,10 +69,12 @@ const textArray = [
 	'в PQ лучше только вертушка и выпрямитель, и то в DQ они тоже нормальные. в DQ M V2L лучше выходной фильтр, ниже сопротивление на ключах дежурки, лучше 3,5 и 5в трансформатор, лучше APFC контроллеры. PQ стоит дороже только потому что ЭТО ЖЕ SOSONIC. Ну и хомячки покупают.',
 	'I installed Linux and the feeling of freedom and privacy hit me so hard that I immediately began committing crimes, knowing that the FBI could never track me. Piracy, sexual assault, trademark infringement, petty larceny, tax fraud, you name it. I also own several fully automatic firearms even though I live in the state of California, but it doesn\'t matter. Ever since I removed Windows 10 from my computer and replaced it with Arch Linux, and began using a PinePhone as my daily driver phone, police can\'t even stop me in traffic. Windows may have a lot of video games, but the benefits of Linux should not be understated.',
 	'Мне не ясны претензии к be quite!, касательно качества БП, 4 года у меня летает Straight power 9 700w. Механическое реле (огромная, ныне, редкость) отсутствие шума, от слова совсем.\nВсё эти претензии, касательно качества продукции, не более чем хейтерство или высказывания фанатов, каких-либо, других производителей комплектующих.',
+	'Так, меня зовут Валерий(фамилию, думаю не надо), родился в 2007 году, увлекаюсь спортом итд. Ну редко сижу в тематике железа и часто обращаюсь за помощью, например мне дакар разгонял память на 3200с18(самсунг чипы были).\nЧто касается данного сервера, всё достаточно неплохо, все отзывчивые, помогают как могут. Просачивается легкий троллинг конечно< но я уже привык.\nЧто касается сборки, она замечательная, но есть небольшая проблема, она немного вышла за пределы моего бюджета(примерно на 870 белорусский рублей, что на 25 тысяч русских дороже). И хотелось бы всё же немного быть добрыми, потому что меня оскорбили грубо говоря, было неприятно слышать(\nНу а в целом желаю процветания и успехов этому серверу, помогайте и развивайтесь\nс любовью Валерий',
+	'приношу свои глубочайшие извинение за содеянный мною так называемый "тролллинг". Это был юмористический акт, не имеющий цели оскорбить, задеть или опозорить. Содеяное мной разрывет моё heart. Ты мне правда не безразличен и я знаю, что я тебе тоже. Поэтому я искренне прошу извинения, клянусь что больше подобного не повториться и никогда в жизни не буду заниматься подобным родом дияний, вызваный личной скукой, но в тоже время приносящий боль другим. В честь этого я хочу закрыть все твои обиды передо мной вечеркомwink. Приходи в 22:00, тебя будет ожидать сюрприз!',
+	'История конфликта началась с Революции Достоинства. Она началась из-за того, что Янукович по указке Кремля, решил не подписывать соглашение с Европейским союзом, вместо этого выбрал Россию. Тогда был убран Виктор Янукович, и Путин хотел показать, что восстание против диктатора ухудшит положение народа, из-за этого началась российско-украинская война. В начале действия России были сосредоточены на Крыму и Донбассе. Россия захватила Крым посредством военного нападения и установила пророссийское правительство.  В целом для рейтингов правительства сказалось благоприятно, поэтому было решено так же, захватить Донбасс. Случилась война на Донбассе, в ходе которой были самопровозглашены т.н. ЛНР и ДНР, военные действия поддерживались Россией, то есть наша страна поддерживала сепаратистские группировки вооружением. Но случилась проблема, после того как Украина оправилась после революции, началось военное контрнаступление против пророссийских сил, под названием АТО (Антитеррористическая операция). Благодаря ВСУ уже в конце 2014 года смогла значительно сократить территорию, находящуюся под оккупацией Россией. Из-за этого 22 августа 2014г Россия решила ввести личный состав и активно использовала артиллерию по украинской территории. В результате помощи боевикам ДНР и ЛНР война продолжилась, то есть война бы закончилась ещё тогда, когда началась АТО победой Украины. Также Россия нарушает минские соглашение, а именно Незамедлительное и всеобъемлющее прекращение огня с 00 ч. 00 мин. (киевское время) 15 февраля 2015 года. Принятие и введение в силу закона, запрещающего преследование и наказание лиц, участвовавших в конфликте. Вывод всех иностранных вооружённых формирований, военной техники, а также наёмников с территории Украины под наблюдением ОБСЕ. Разоружение всех незаконных групп. В 2022 году Россия официально признаёт ЛДНР. Затем Россия вторглась в Украину.',
 ];
 
-// Собсна капибарки
-
+// Гифки с капибарами
 const urlImageArray = [
 	'https://media.giphy.com/media/fV2LPyKvxLBsK1bZXA/giphy.gif',
 	'https://media.giphy.com/media/H1zIfgQFWJR82Et8Uw/giphy.gif',
@@ -132,15 +89,14 @@ const urlImageArray = [
 ];
 
 // Сообщение при заходе участника
-
 const newbiesEmbed = new EmbedBuilder()
 //	.setColor(3092790)
 	.setColor(16241871)
 	.setTitle('Новый участник');
 
-client.on('guildMemberAdd', member => {
+client.on('guildMemberAdd', async member => {
 
-	// Рандомайщзер
+	// Рандомайзер
 	const randomPaste = textArray[Math.floor(Math.random() * textArray.length)];
 	const randomImage = urlImageArray[Math.floor(Math.random() * urlImageArray.length)];
 
@@ -153,4 +109,5 @@ client.on('guildMemberAdd', member => {
 
 });
 
+// Авторизация бота
 client.login(token);
