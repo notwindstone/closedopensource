@@ -5,7 +5,9 @@ const path = require('node:path');
 // Необходимое для Discord.js
 const { Client, Collection, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 
-const { token } = require('./config.json');
+require('dotenv').config();
+const token = process.env.TOKEN;
+// const { token } = require('./config.json');
 
 // Инстанция клиента
 const client = new Client({
