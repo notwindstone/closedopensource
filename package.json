@@ -9,8 +9,7 @@
   "author": "windstone#3250, zvshka#6437",
   "license": "ISC",
   "dependencies": {
-    "discord.js": "^14.7.1",
-    "dotenv": "^16.0.3"
+    "discord.js": "^14.7.1"
   },
   "devDependencies": {
     "eslint": "^8.29.0"

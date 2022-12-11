@@ -4,11 +4,11 @@ const fs = require('node:fs');
 // Необходимое для Discord.js
 const { REST, Routes } = require('discord.js');
 
-require('dotenv').config();
-const clientId = process.env.APPLICATION_ID;
-const guildId = process.env.GUILD_ID ;
-const token = process.env.TOKEN;
-// const { clientId, guildId, token } = require('./config.json');
+// require('dotenv').config();
+// const clientId = process.env.APPLICATION_ID;
+// const guildId = process.env.GUILD_ID ;
+// const token = process.env.TOKEN;
+const { clientId, guildId, token } = require('./config.json');
 
 const commands = [];
 // Чтение всех файлов с расширением .js из каталога commands
