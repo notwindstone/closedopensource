@@ -93,6 +93,7 @@ const welcomeEmbedSelect = new EmbedBuilder()
 		'https://cdn.discordapp.com/icons/725786415438364692/a_8904844391da8277010a5fcdfb33c19a.gif',
 	);
 
+/* Закомментировал до лучших времён
 const welcomeEmbedSocials = new EmbedBuilder()
 //	.setColor(3092790)
 	.setColor(16241871)
@@ -104,6 +105,7 @@ const welcomeEmbedSocials = new EmbedBuilder()
 			iconURL: 'https://cdn.discordapp.com/icons/725786415438364692/a_8904844391da8277010a5fcdfb33c19a.gif',
 		},
 	);
+*/
 
 const welcomeEmbedOther = new EmbedBuilder()
 //	.setColor(3092790)
@@ -143,14 +145,16 @@ const welcomeEmbedInvite = new EmbedBuilder()
 		},
 	);
 
-// Создаём ивент
+// Экспортируем модуль
 module.exports = {
 	name: Events.InteractionCreate,
 	async execute(interaction) {
 		const { customId } = interaction; 
 
+		// Проверяем, есть ли в сообщении меню выбора
 		if (!interaction.isStringSelectMenu()) return;
 
+		// Проверяем айди меню выбора
 		if (customId == 'select') {
 
 			const member = interaction.member;
@@ -180,10 +184,11 @@ module.exports = {
 			// Берём ID ролей, которые у участника не имеются, но выбраны в selected
 			const added = selected.filter(role => !memberHasThatRole.includes(role));
 
+			// Создаём эмбед
 			const rolesChange = new EmbedBuilder()
 			//    .setColor(3092790)
 				.setColor(16241871)
-				.setTitle('Изменение ролей')
+				.setTitle('Выбор ролей')
 				.setDescription('Успешное обновление Ваших ролей.')
 				.setFooter(
 					{
@@ -192,11 +197,48 @@ module.exports = {
 					},
 				);
 
+			// Выводим в консоль айди ролей, которые были взяты или убраны
 			console.log(removed, added);
-		
+
+			// Убираем или добавляем новые роли
 			member.roles.remove(removed).catch(console.log).then((newMember) => newMember.roles.add(added));
 
-			return interaction.reply({ embeds: [rolesChange], ephemeral: true });
+			// Превращаем константу added в String и заменяем все запятые на >, <@&
+			const addedRolesArray = added.toString().replaceAll(',', '>, <@&');
+
+			// Превращаем константу removed в String и заменяем все запятые на >, <@&
+			const removedRolesArray = removed.toString().replaceAll(',', '>, <@&');
+			/*
+				1. Роли не взяты и не убраны
+				2. Роли взяты, но не убраны
+				3. Роли не взяты, но убраны
+				4. Роли взяты и убраны
+			*/
+			if (added == '' && removed == '') {
+				rolesChange.setDescription('Ваши роли не были изменены.');
+				interaction.reply({ embeds: [rolesChange], ephemeral: true });
+			} 
+			else if (added != '' && removed == '') {
+				rolesChange.addFields(
+					{ name: 'Добавлены', value: '<@&' + addedRolesArray + '>' },
+				),
+				interaction.reply({ embeds: [rolesChange], ephemeral: true });
+			} 
+			else if (added == '' && removed != '') {
+				rolesChange.addFields(
+					{ name: 'Убраны', value: '<@&' + removedRolesArray + '>' },
+				),
+				interaction.reply({ embeds: [rolesChange], ephemeral: true });
+			} 
+			else {
+				rolesChange.addFields(
+					{ name: 'Добавлены', value: '<@&' + addedRolesArray + '>' },
+					{ name: 'Убраны', value: '<@&' + removedRolesArray + '>' },
+				),
+				interaction.reply({ embeds: [rolesChange], ephemeral: true });
+			}
+
+			// return interaction.reply({ embeds: [rolesChange], ephemeral: true });
 		}
 		else {
 			// "ключ": "ID роли"
@@ -206,11 +248,13 @@ module.exports = {
 				return interaction.reply({ embeds: [welcomeEmbedRoles, welcomeEmbedChannels], ephemeral: true });
 			case 'second_welcome':
 				return interaction.reply({ embeds: [welcomeEmbedSelect], components: [rolesComponent], ephemeral: true });
+			/*
 			case 'third_welcome':
 				return interaction.reply({ embeds: [welcomeEmbedSocials], ephemeral: true });
-			case 'fourth_welcome':
+			*/
+			case 'third_welcome':
 				return interaction.reply({ embeds: [welcomeEmbedOther], ephemeral: true });
-			case 'fifth_welcome':
+			case 'fourth_welcome':
 				return interaction.reply({ content: 'https://discord.gg/ff6mCHaMpJ', embeds: [welcomeEmbedInvite], ephemeral: true });
 			}
 		

@@ -12,7 +12,7 @@ module.exports = {
 		.setName('пинг')
 		.setDescription('Показывает пинг'),
 	async execute(interaction) {
-		pingEmbed.setDescription(`🏓 Задержка клиента ${interaction.createdTimestamp - Date.now()} мс\n⌛ Задержка Discord API ${Math.round(interaction.client.ws.ping)} мс`);
+		pingEmbed.setDescription(`🏓 Задержка клиента ${Date.now() - interaction.createdTimestamp} мс\n⌛ Задержка Discord API ${Math.round(interaction.client.ws.ping)} мс`);
 		return interaction.reply({ embeds: [pingEmbed] });
 	},
 

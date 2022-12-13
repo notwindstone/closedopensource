@@ -22,23 +22,25 @@ const welcomeComponent = new ActionRowBuilder()
 					description: 'Дополнительные роли, которые можно получить самому',
 					value: 'second_welcome',
 				},
+				/*
 				{
 					emoji: '🌐',
 					label: 'Платформы',
 					description: 'Наш сервер есть не только в дискорде!',
 					value: 'third_welcome',
 				},
+				*/
 				{
 					emoji: '💠',
 					label: 'Прочее',
 					description: 'Все остальные фишки сервера',
-					value: 'fourth_welcome',
+					value: 'third_welcome',
 				},
 				{
 					emoji: '🎫',
 					label: 'Приглашение',
 					description: 'Вечная ссылка на сервер',
-					value: 'fifth_welcome',
+					value: 'fourth_welcome',
 				},
 			),
 	);
@@ -64,7 +66,8 @@ module.exports = {
 		.setDescription('Создаёт эмбед приветствия'),
 	async execute(interaction) {
 		if (owners.includes(interaction.user.id)) {
-			return interaction.channel.send({ embeds: [welcomeEmbedInfo], components: [welcomeComponent] });
+			interaction.reply({ content: 'Успешное выполнение команды!', ephemeral: true });
+			interaction.channel.send({ embeds: [welcomeEmbedInfo], components: [welcomeComponent] });
 		}
 		else {
 			return interaction.reply({ content: 'Не хватает прав!', ephemeral: true });
